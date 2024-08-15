@@ -16,29 +16,56 @@ struct ContentView: View {
             VStack {
                 if noteModel.notes.isEmpty {Text("No Notes")}
                 else {
-                    List($noteModel.notes, id: \.id) { item in
+                    List($noteModel.notes, id: \.id, editActions: [.delete]) { item in
                         NavigationLink {
                             //Text(item.title)
-                            NoteEditorView(note: item)
+                            NoteEditorView(note: item) // binding item
                                 .environmentObject(noteModel)
                         } label: {
-                            Text(item.title.wrappedValue)
+                            VStack(alignment:.leading,content: {
+                                Text(item.title.wrappedValue)
+                                    .font(.headline)
+                                
+                                Text(item.descripion.wrappedValue)
+                                    .padding(.bottom)
+                                
+                                Text(item.dateCreated.wrappedValue.formatted())
+                                    .font(.caption2)
+                                    
+                                    .foregroundStyle(.gray)
+                            })
                         }
-
+                        
                     }
+                    .listRowSpacing(20)
+                    
                 }
                 
             }
             .navigationTitle("NoteDump")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
+                
                 ToolbarItem(placement: .navigationBarLeading) {
                     Image(systemName: "magnifyingglass")
                         .foregroundColor(.blue)
                 }
+                
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    NavigationLink {
+                        // pass binding item here
+                        NoteEditorView(note: $noteModel.newNote)
+                            .environmentObject(noteModel)
+                    } label: {
+                        Image(systemName: "plus")
+                            .foregroundColor(.blue)
+                    }
+
+                }
+                
 //                ToolbarItem(placement: .navigationBarTrailing) {
 //                    NavigationLink {
-//                        NoteEditorView(note: )
+//                        NoteEditorView(note: noteModel.$edittedNote)
 //                            .environmentObject(noteModel)
 //                    } label: {
 //                        Image(systemName: "plus")
@@ -49,6 +76,10 @@ struct ContentView: View {
                 
             }
         }
+    }
+    
+    func deleteNote(at offset: IndexSet) {
+        noteModel.notes.remove(atOffsets: offset)
     }
 }
 

@@ -14,9 +14,9 @@ struct NoteEditorView: View {
     
     @Binding var note: Note
     
-    
-    var noteIndex: Int {
-        noteModel.notes.firstIndex { $0.id == note.id }!
+    var noteIndex: Int? {
+        // either at specific index, or end of array (which denotes last element)
+        noteModel.notes.firstIndex { $0.id == note.id }
     }
     
     @Environment(\.presentationMode) private var presentationMode
@@ -51,14 +51,26 @@ struct NoteEditorView: View {
             .padding()
             .navigationBarTitleDisplayMode(.inline)
             
-            .navigationTitle("New Note")
+            .navigationTitle(note.title)
             .toolbar {
                 // to save
                 ToolbarItem(placement: .navigationBarLeading) {
                     Button {
+                        // can only save if there is contents?
+                        
                         note.dateCreated = .now
-                        noteModel.updateNote(noteIndex: noteIndex, note)
+                        if isInputsFilled() { // only if there is inputs
+                            if let index = noteIndex {
+                                noteModel.updateNote(noteIndex: index, note)
+                            } else { // means new Note
+                                noteModel.createNote(note: note)
+                            }
+                        } else {
+                            noteModel.resetNewNote()
+                        }
                         presentationMode.wrappedValue.dismiss()
+                        
+                        
                     } label: {
                         Image(systemName: "checkmark")
                     }
@@ -72,6 +84,11 @@ struct NoteEditorView: View {
             }
         }
         .navigationBarBackButtonHidden(true)
+    }
+    
+    func isInputsFilled() -> Bool {
+        return !note.title.trimmingCharacters(in: .whitespaces).isEmpty ||
+        !note.descripion.trimmingCharacters(in: .whitespaces).isEmpty
     }
 }
 

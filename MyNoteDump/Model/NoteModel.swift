@@ -12,10 +12,16 @@ class NoteModel: ObservableObject {
     
     @Published var notes: [Note] = Note.mockData
     
-    @Published var edittedNote: Note?
+    // for adding new ones
+    @Published var newNote: Note = Note()
     
     func createNote(note: Note) {
         notes.append(note)
+        resetNewNote()
+    }
+    
+    func resetNewNote() {
+        newNote = Note()
     }
     
     func updateNote(noteIndex: Int?, _ note: Note?) {
